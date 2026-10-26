@@ -1,207 +1,296 @@
-WORKSPACE</div>
-    <nav class="nav-links">
-      
-      
-      
-      
-          
-      {% if request.user.is_staff %}
-      
-      
-      
-      
-      {% endif %}
-    
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}TradeLife{% endblock %}</title>
+    <style>
+        :root {
+            --tl-green: #176b4d;
+            --tl-green-dark: #10543c;
+            --tl-green-pale: #eaf4ee;
+            --tl-ink: #17231d;
+            --tl-muted: #68766e;
+            --tl-line: #e2e9e4;
+            --tl-page: #f5f8f5;
+            --tl-sidebar-width: 258px;
+        }
 
+        * { box-sizing: border-box; }
 
-</nav>
-    <div class="sidebar-bottom">
-      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="nav-button" type="submit">Sign out</button></form>
-    </div>
-  </aside>
-  <main class="main-area">
-    <header class="topbar"><div><span class="eyebrow">YOUR BUSINESS</span><strong>{{ request.user.username }}</strong></div><span class="user-chip">{{ request.user.username|first|upper }}</span></header>
-    <div class="content">
-      {% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
-      {% block content %}{% endblock %}
-      <footer>TradeLife Ãƒâ€šÃ‚Â· A practical business record keeping prototype</footer>
-    </div>
-  </main>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--tl-page);
+            color: var(--tl-ink);
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        .tl-layout { min-height: 100vh; }
+
+        .tl-sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 10;
+            display: flex;
+            width: var(--tl-sidebar-width);
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 22px 15px;
+            background: #123d2d;
+            color: #fff;
+        }
+
+        .tl-brand {
+            display: block;
+            margin: 0 10px 25px;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .tl-brand small {
+            display: block;
+            margin-top: 4px;
+            color: #c5d9cd;
+            font-size: .78rem;
+            font-weight: 500;
+        }
+
+        .tl-section-label {
+            margin: 0 11px 9px;
+            color: #b9d2c2;
+            font-size: .7rem;
+            font-weight: 750;
+            letter-spacing: .13em;
+        }
+
+        .tl-nav { display: grid; gap: 3px; }
+
+        .tl-nav a {
+            display: block;
+            padding: 10px 11px;
+            border-radius: 8px;
+            color: #e8f2ec;
+            font-size: .92rem;
+            font-weight: 600;
+            line-height: 1.3;
+            text-decoration: none;
+        }
+
+        .tl-nav a:hover,
+        .tl-nav a:focus,
+        .tl-nav a[aria-current="page"] {
+            background: rgba(255, 255, 255, .13);
+            color: #fff;
+        }
+
+        .tl-account {
+            margin-top: auto;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, .18);
+        }
+
+        .tl-account-name {
+            margin: 0 10px 10px;
+            color: #d5e4da;
+            font-size: .82rem;
+            overflow-wrap: anywhere;
+        }
+
+        .tl-account form { margin: 0; }
+
+        .tl-signout {
+            width: 100%;
+            padding: 9px 11px;
+            border: 1px solid rgba(255, 255, 255, .28);
+            border-radius: 8px;
+            background: transparent;
+            color: #fff;
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .tl-signout:hover { background: rgba(255, 255, 255, .12); }
+
+        .tl-main {
+            min-height: 100vh;
+            margin-left: var(--tl-sidebar-width);
+        }
+
+        .tl-topbar {
+            display: flex;
+            min-height: 70px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 12px 28px;
+            border-bottom: 1px solid var(--tl-line);
+            background: #fff;
+        }
+
+        .tl-topbar-label {
+            display: block;
+            margin-bottom: 3px;
+            color: var(--tl-muted);
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+        }
+
+        .tl-user-chip {
+            display: grid;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            flex: 0 0 auto;
+            border-radius: 50%;
+            background: var(--tl-green-pale);
+            color: var(--tl-green-dark);
+            font-weight: 800;
+        }
+
+        .tl-content {
+            width: min(100%, 1440px);
+            margin: 0 auto;
+            padding: 26px;
+        }
+
+        .tl-footer {
+            margin-top: 34px;
+            padding: 16px 0;
+            border-top: 1px solid var(--tl-line);
+            color: var(--tl-muted);
+            font-size: .82rem;
+        }
+
+        .tl-messages { margin-bottom: 18px; }
+        .tl-message {
+            margin-bottom: 8px;
+            padding: 12px 14px;
+            border: 1px solid var(--tl-line);
+            border-radius: 9px;
+            background: #fff;
+        }
+
+        .tl-public {
+            width: min(100% - 32px, 520px);
+            margin: 8vh auto;
+            padding: 28px;
+            border: 1px solid var(--tl-line);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 12px 32px rgba(26, 55, 39, .08);
+        }
+
+        .tl-content h1,
+        .tl-content h2,
+        .tl-content h3 { color: var(--tl-ink); }
+
+        .tl-content .card {
+            border: 1px solid var(--tl-line);
+            border-radius: 13px;
+            background: #fff;
+            box-shadow: 0 6px 20px rgba(26, 55, 39, .05);
+        }
+
+        .tl-content .btn-primary {
+            border-color: var(--tl-green);
+            background: var(--tl-green);
+        }
+
+        .tl-content .btn-primary:hover {
+            border-color: var(--tl-green-dark);
+            background: var(--tl-green-dark);
+        }
+
+        .tl-content input,
+        .tl-content select,
+        .tl-content textarea {
+            max-width: 100%;
+            border-color: #d8e1da;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 760px) {
+            .tl-sidebar {
+                position: relative;
+                width: 100%;
+                max-height: 48vh;
+                padding: 16px;
+            }
+
+            .tl-brand { margin-bottom: 16px; }
+            .tl-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .tl-account { margin-top: 14px; }
+            .tl-main { margin-left: 0; }
+            .tl-topbar { min-height: 60px; padding: 10px 16px; }
+            .tl-content { padding: 18px 14px; }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+{% if request.user.is_authenticated %}
+<div class="tl-layout">
+    <aside class="tl-sidebar">
+        <a class="tl-brand" href="{% url 'dashboard' %}">
+            TradeLife
+            <small>Business workspace</small>
+        </a>
+
+        <div class="tl-section-label">WORKSPACE</div>
+        <nav class="tl-nav" aria-label="Workspace">
+            <a href="{% url 'dashboard' %}">Overview</a>
+            <a href="{% url 'customer_list' %}">Customers</a>
+            <a href="{% url 'quote_list' %}">Quotations</a>
+            <a href="{% url 'invoice_list' %}">Invoices &amp; payments</a>
+            <a href="{% url 'expense_list' %}">Expenses</a>
+            <a href="{% url 'forecast' %}">Cash outlook</a>
+            <a href="{% url 'opportunity_list' %}">Market opportunities</a>
+            <a href="{% url 'readiness' %}">Business readiness</a>
+            <a href="{% url 'my_updates' %}">Updates</a>
+        </nav>
+
+        <div class="tl-account">
+            <div class="tl-account-name">{{ request.user.username }}</div>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="tl-signout" type="submit">Sign out</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="tl-main">
+        <header class="tl-topbar">
+            <div>
+                <span class="tl-topbar-label">YOUR BUSINESS</span>
+                <strong>{% if business %}{{ business.name }}{% else %}{{ request.user.username }}{% endif %}</strong>
+            </div>
+            <span class="tl-user-chip">{{ request.user.username|first|upper }}</span>
+        </header>
+
+        <div class="tl-content">
+            {% if messages %}
+                <div class="tl-messages">
+                    {% for message in messages %}
+                        <div class="tl-message {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+            <footer class="tl-footer">TradeLife · Practical business record keeping</footer>
+        </div>
+    </main>
 </div>
+{% else %}
+<main class="tl-public">
     {% block public_content %}{% endblock %}
-<style>
-/* TRADELIFE_SIDEBAR_CSS_REPAIR_V2 */
-:root {
-    --tl-sidebar-width: 258px;
-    --tl-green: #176b4d;
-    --tl-green-dark: #10543c;
-    --tl-green-light: #eaf4ee;
-    --tl-ink: #17231d;
-    --tl-muted: #68766e;
-    --tl-border: #e2e9e4;
-    --tl-page: #f5f8f5;
-}
-
-body {
-    margin: 0;
-    min-height: 100vh;
-    background: var(--tl-page);
-    color: var(--tl-ink);
-    font-family: "Segoe UI", Arial, sans-serif;
-}
-
-aside {
-    position: fixed;
-    inset: 0 auto 0 0;
-    z-index: 1000;
-    width: var(--tl-sidebar-width);
-    min-height: 100vh;
-    overflow-y: auto;
-    box-sizing: border-box;
-    padding: 24px 16px;
-    background: #123d2d;
-    color: #fff;
-}
-
-aside a {
-    display: block;
-    margin: 3px 0;
-    padding: 10px 12px;
-    border-radius: 9px;
-    color: #e8f2ec;
-    font-size: .94rem;
-    font-weight: 600;
-    line-height: 1.35;
-    text-decoration: none;
-}
-
-aside a:hover,
-aside a:focus {
-    background: rgba(255, 255, 255, .12);
-    color: #fff;
-}
-
-aside .sidebar-section-label {
-    margin: 22px 12px 9px;
-    color: #b9d2c2;
-    font-size: .72rem;
-    font-weight: 750;
-    letter-spacing: .13em;
-}
-
-.main-area {
-    min-height: 100vh;
-    margin-left: var(--tl-sidebar-width);
-}
-
-.topbar {
-    position: sticky;
-    top: 0;
-    z-index: 900;
-    display: flex;
-    min-height: 72px;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 12px 28px;
-    border-bottom: 1px solid var(--tl-border);
-    background: rgba(255, 255, 255, .96);
-}
-
-.topbar .eyebrow {
-    display: block;
-    margin-bottom: 3px;
-    color: var(--tl-muted);
-    font-size: .72rem;
-    font-weight: 700;
-    letter-spacing: .1em;
-}
-
-.user-chip {
-    display: inline-flex;
-    width: 38px;
-    height: 38px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: var(--tl-green-light);
-    color: var(--tl-green-dark);
-    font-weight: 800;
-}
-
-.content {
-    width: min(100%, 1440px);
-    box-sizing: border-box;
-    margin: 0 auto;
-    padding: 28px;
-}
-
-.content h1,
-.content h2,
-.content h3 {
-    color: var(--tl-ink);
-    letter-spacing: -.02em;
-}
-
-.content .card {
-    border: 1px solid var(--tl-border);
-    border-radius: 14px;
-    box-shadow: 0 8px 24px rgba(26, 55, 39, .06);
-}
-
-.content .btn-primary {
-    border-color: var(--tl-green);
-    background: var(--tl-green);
-}
-
-.content .btn-primary:hover {
-    border-color: var(--tl-green-dark);
-    background: var(--tl-green-dark);
-}
-
-.content .form-control,
-.content .form-select {
-    min-height: 42px;
-    border-color: #d8e1da;
-    border-radius: 8px;
-}
-
-.content footer {
-    margin-top: 36px;
-    padding: 18px 0;
-    border-top: 1px solid var(--tl-border);
-    color: var(--tl-muted);
-    font-size: .85rem;
-}
-
-@media (max-width: 760px) {
-    aside {
-        position: relative;
-        width: 100%;
-        min-height: auto;
-        max-height: 48vh;
-        padding: 14px;
-    }
-
-    aside .sidebar-section-label {
-        margin-top: 10px;
-    }
-
-    .main-area {
-        margin-left: 0;
-    }
-
-    .topbar {
-        min-height: 62px;
-        padding: 10px 16px;
-    }
-
-    .content {
-        padding: 20px 15px;
-    }
-}
-</style>
+</main>
+{% endif %}
+{% block extra_js %}{% endblock %}
 </body>
 </html>
-
-
