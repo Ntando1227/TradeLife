@@ -1,0 +1,20 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 760px">
+  <a href="{% url 'quote_manage' %}" class="text-decoration-none">&larr; Back to quotations</a>
+  <div class="mt-3 mb-4">
+    <p class="text-muted mb-1">QT-{{ quote.id|stringformat:"05d" }}</p>
+    <h1 class="h2">{{ page_title }}</h1>
+    <p class="text-muted mb-0">Update the customer, description, dates, status, or amount. VAT and business profile details are not included on this quotation page.</p>
+  </div>
+  <form method="post" class="card card-body">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary" type="submit">Save quotation</button>
+      <a class="btn btn-outline-secondary" href="{% url 'quote_manage' %}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

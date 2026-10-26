@@ -1,0 +1,10 @@
+{% extends "core/base.html" %}
+{% block title %}Updates | TradeLife{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">BUSINESS MESSAGES</div><h1>Updates from TradeLife</h1><p>Updates shared with {{ business.name }}.</p></div></div>
+<section class="panel">
+{% for update in updates %}
+<article><h2>{{ update.title }}</h2><p>{{ update.body|linebreaksbr }}</p><small>{{ update.get_category_display }} · {{ update.get_status_display }}</small></article>
+{% empty %}<div class="empty-state">There are no updates to show right now.</div>{% endfor %}
+</section>
+{% endblock %}

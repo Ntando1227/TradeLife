@@ -1,0 +1,182 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<style>
+.main-dashboard { max-width:1280px; margin:0 auto; padding:28px 16px 48px; color:#17212b; }
+.main-head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px; margin-bottom:24px; }
+.main-eyebrow { color:#718096; font-size:.78rem; text-transform:uppercase; letter-spacing:.12em; font-weight:700; }
+.main-title { font-size:clamp(1.8rem,4vw,2.4rem); font-weight:750; margin:4px 0; }
+.main-subtitle { color:#718096; margin:0; }
+.main-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-bottom:16px; }
+.main-grid.three { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.main-card { background:#fff; border:1px solid #e7edf2; border-radius:18px; padding:20px; box-shadow:0 8px 24px rgba(20,38,54,.045); }
+.main-metric { min-height:130px; position:relative; overflow:hidden; }
+.main-metric:after { content:""; position:absolute; right:-24px; bottom:-42px; width:125px; height:125px; border-radius:50%; background:#edf7f2; }
+.main-metric-label { color:#718096; font-size:.9rem; }
+.main-metric-value { font-size:2.35rem; font-weight:750; margin:12px 0; position:relative; z-index:1; }
+.main-link { color:#176b4d; font-weight:650; text-decoration:none; position:relative; z-index:1; }
+.main-section-title { font-size:1.05rem; font-weight:700; margin:0; }
+.main-note { color:#718096; font-size:.85rem; margin-top:4px; }
+.main-chart { height:195px; display:flex; align-items:end; gap:12px; padding:18px 4px 0; }
+.main-chart-col { flex:1; height:100%; display:flex; flex-direction:column; justify-content:end; align-items:center; gap:8px; }
+.main-chart-count,.main-chart-label { color:#718096; font-size:.78rem; }
+.main-chart-track { height:138px; width:min(36px,70%); display:flex; align-items:end; background:#f0f4f5; border-radius:10px 10px 5px 5px; overflow:hidden; }
+.main-chart-bar { width:100%; background:linear-gradient(180deg,#39ae80,#176b4d); border-radius:10px 10px 4px 4px; min-height:5px; }
+.main-status-row { display:grid; grid-template-columns:100px 1fr 26px; align-items:center; gap:10px; margin:15px 0; font-size:.88rem; }
+.main-status-track { height:9px; background:#edf1f3; border-radius:99px; overflow:hidden; }
+.main-status-fill { height:100%; background:#39a477; border-radius:99px; }
+.main-list { list-style:none; padding:0; margin:12px 0 0; }
+.main-list li { display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-top:1px solid #edf1f3; }
+.main-primary { font-weight:650; }
+.main-secondary { color:#718096; font-size:.84rem; margin-top:3px; }
+.main-amount { font-weight:700; white-space:nowrap; }
+.main-empty { color:#718096; padding:18px 0; }
+@media(max-width:720px) {
+  .main-grid,.main-grid.three { grid-template-columns:1fr; }
+  .main-head { align-items:flex-start; flex-direction:column; }
+}
+</style>
+
+<div class="main-dashboard">
+  <div class="main-head">
+    <div>
+      <div class="main-eyebrow">{% if is_admin %}Administrator dashboard{% else %}Business dashboard{% endif %}</div>
+      <h1 class="main-title">{% if business %}{{ business.name }}{% else %}Business overview{% endif %}</h1>
+      <p class="main-subtitle">Customers, quotations and recent activity in one place.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-primary" href="{% url 'action_centre' %}">Action Centre</a>
+      <a class="btn btn-primary" href="{% url 'quote_create' %}">Create quotation</a>
+    </div>
+  </div>
+
+  <div class="main-grid {% if is_admin %}three{% endif %}">
+    {% if is_admin %}
+    <div class="main-card main-metric">
+      <div class="main-metric-label">Businesses</div>
+      <div class="main-metric-value">{{ business_count }}</div>
+    </div>
+    {% endif %}
+    <div class="main-card main-metric">
+      <div class="main-metric-label">Customers</div>
+      <div class="main-metric-value">{{ customer_count }}</div>
+      <a class="main-link" href="{% url 'customer_list' %}">View customer records →</a>
+    </div>
+    <div class="main-card main-metric">
+      <div class="main-metric-label">Quotations</div>
+      <div class="main-metric-value">{{ quote_count }}</div>
+      <a class="main-link" href="{% url 'quote_manage' %}">Manage quotations →</a>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <section class="main-card">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h2 class="main-section-title">Quotation activity</h2>
+          <div class="main-note">Quotations by issue date</div>
+        </div>
+        <span class="badge text-bg-light">Last 6 months</span>
+      </div>
+      <div class="main-chart">
+        {% for month in monthly_activity %}
+        <div class="main-chart-col">
+          <span class="main-chart-count">{{ month.count }}</span>
+          <div class="main-chart-track"><div class="main-chart-bar" style="height:{{ month.height }}%"></div></div>
+          <span class="main-chart-label">{{ month.label }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="main-card">
+      <h2 class="main-section-title">Quotation status</h2>
+      <div class="main-note">Current status across all quotations shown here</div>
+      {% for item in quote_statuses %}
+      <div class="main-status-row">
+        <span>{{ item.label }}</span>
+        <div class="main-status-track"><div class="main-status-fill" style="width:{{ item.percent }}%"></div></div>
+        <strong>{{ item.count }}</strong>
+      </div>
+      {% empty %}
+      <div class="main-empty">Your quotation status summary will appear here.</div>
+      {% endfor %}
+    </section>
+  </div>
+
+  {% if is_admin %}
+  <section class="main-card mb-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2 class="main-section-title">Recently registered businesses</h2>
+        <div class="main-note">New company customers on the platform</div>
+      </div>
+      <span class="badge text-bg-light">{{ business_count }} total</span>
+    </div>
+    <ul class="main-list">
+      {% for company in businesses %}
+      <li>
+        <div><div class="main-primary">{{ company.name }}</div><div class="main-secondary">Owner: {{ company.owner.username }}</div></div>
+        <div class="main-secondary">{{ company.created_at|date:"d M Y" }}</div>
+      </li>
+      {% empty %}
+      <li class="main-empty">No businesses registered yet.</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <div class="main-grid">
+    <section class="main-card">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="main-section-title">Recently added customers</h2>
+        <a href="{% url 'customer_list' %}">View all</a>
+      </div>
+      <ul class="main-list">
+        {% for customer in recent_customers %}
+        <li>
+          <div>
+            <div class="main-primary">{{ customer.name }}</div>
+            {% if is_admin %}<div class="main-secondary">{{ customer.business.name }}</div>{% endif %}
+          </div>
+          <div class="main-secondary">{{ customer.created_at|date:"d M Y" }}</div>
+        </li>
+        {% empty %}
+        <li class="main-empty">No customers recorded yet.</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="main-card">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="main-section-title">Recent quotations</h2>
+        <a href="{% url 'quote_manage' %}">View all</a>
+      </div>
+      <ul class="main-list">
+        {% for quote in recent_quotes %}
+        <li>
+          <div>
+            <div class="main-primary">QT-{{ quote.id|stringformat:"05d" }} · {{ quote.customer.name }}</div>
+            {% if is_admin %}<div class="main-secondary">{{ quote.business.name }}</div>{% endif %}
+            <div class="main-secondary">{{ quote.issue_date|date:"d M Y" }} · {{ quote.get_status_display|default:quote.status }}</div>
+          </div>
+          <div class="main-amount">R {{ quote.amount }}</div>
+        </li>
+        {% empty %}
+        <li class="main-empty">No quotations recorded yet.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+</div>
+  <section class="main-card mb-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <h2 class="main-section-title">Market access</h2>
+      <div class="main-note">Find procurement, funding and business opportunities matched to your sector and location.</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-primary" href="/opportunities/">Browse opportunities</a>
+      <a class="btn btn-outline-secondary" href="/api/v1/">API guide</a>
+    </div>
+  </section>
+{% endblock %}

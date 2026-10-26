@@ -1,0 +1,80 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<style>
+.action-page { max-width:1180px; margin:0 auto; padding:28px 16px 48px; color:#17212b; }
+.action-head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px; margin-bottom:22px; }
+.action-kicker { color:#718096; font-size:.78rem; text-transform:uppercase; letter-spacing:.12em; font-weight:700; }
+.action-title { font-size:clamp(1.8rem,4vw,2.4rem); font-weight:750; margin:4px 0; }
+.action-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:16px; }
+.action-card,.action-list { background:#fff; border:1px solid #e7edf2; border-radius:16px; box-shadow:0 8px 24px rgba(20,38,54,.045); }
+.action-card { padding:19px; }
+.action-label { color:#718096; font-size:.88rem; }
+.action-number { font-size:1.85rem; font-weight:750; margin-top:8px; }
+.action-list { overflow:hidden; }
+.action-list-head { padding:17px 20px; display:flex; justify-content:space-between; gap:12px; border-bottom:1px solid #edf1f3; }
+.action-row { display:grid; grid-template-columns:5px 1fr auto; gap:15px; padding:18px 20px; border-bottom:1px solid #edf1f3; align-items:start; }
+.action-row:last-child { border-bottom:0; }
+.action-stripe { width:5px; height:100%; min-height:45px; border-radius:8px; background:#d8a33b; }
+.action-row.high .action-stripe { background:#d9534f; }
+.action-kind { color:#718096; font-size:.77rem; text-transform:uppercase; letter-spacing:.06em; }
+.action-name { font-weight:700; margin:3px 0; }
+.action-detail { color:#52616d; }
+.action-date { color:#718096; font-size:.83rem; margin-top:5px; }
+.action-empty { padding:42px 20px; text-align:center; }
+@media(max-width:700px) {
+  .action-grid { grid-template-columns:1fr; }
+  .action-row { grid-template-columns:5px 1fr; }
+  .action-meta { grid-column:2; }
+}
+</style>
+
+<div class="action-page">
+  <div class="action-head">
+    <div>
+      <div class="action-kicker">{% if is_admin %}Platform-wide view{% else %}Business priorities{% endif %}</div>
+      <h1 class="action-title">Action Centre</h1>
+      <p class="text-muted mb-0">
+        {% if is_admin %}Follow-ups across all registered businesses.{% elif business %}{{ business.name }} · Follow-ups and upcoming payments.{% else %}Complete your business profile to see business actions.{% endif %}
+      </p>
+    </div>
+    <a class="btn btn-outline-primary" href="/dashboard/">Back to dashboard</a>
+  </div>
+
+  {% if setup_needed %}
+  <div class="alert alert-info">This account does not have a business profile yet. Complete the profile, then return to the Action Centre.</div>
+  {% else %}
+  <div class="action-grid">
+    <div class="action-card"><div class="action-label">Items needing attention</div><div class="action-number">{{ action_count }}</div></div>
+    <div class="action-card"><div class="action-label">Expected receipts in 30 days</div><div class="action-number">R {{ expected_receipts|floatformat:2 }}</div></div>
+    <div class="action-card"><div class="action-label">Expected expenses in 30 days</div><div class="action-number">R {{ expected_expenses|floatformat:2 }}</div></div>
+  </div>
+
+  <div class="alert alert-light border">
+    <strong>Estimated net movement: R {{ expected_net|floatformat:2 }}</strong>
+    <div class="small text-muted mt-1">Estimate uses outstanding invoices and unpaid expenses with due dates recorded in the app.</div>
+  </div>
+
+  <section class="action-list">
+    <div class="action-list-head"><strong>Recommended actions</strong><span class="small text-muted">Sorted by priority and date</span></div>
+    {% for item in actions %}
+    <div class="action-row {% if item.priority == 'High' %}high{% endif %}">
+      <div class="action-stripe"></div>
+      <div>
+        <div class="action-kind">{{ item.category }}</div>
+        <div class="action-name">{{ item.title }}</div>
+        <div class="action-detail">{{ item.detail }}</div>
+        {% if item.due_date %}<div class="action-date">Date: {{ item.due_date|date:"d M Y" }}</div>{% endif %}
+      </div>
+      <div class="action-meta text-end">
+        {% if item.priority == "High" %}<span class="badge bg-danger">High priority</span>{% else %}<span class="badge bg-warning text-dark">Normal priority</span>{% endif %}
+        {% if item.link %}<div class="mt-2"><a href="{{ item.link }}">Open records →</a></div>{% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="action-empty"><div class="fs-5 fw-semibold">You are up to date</div><div class="text-muted mt-1">Customer follow-ups, quotations, payment reminders and business updates will appear here.</div></div>
+    {% endfor %}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

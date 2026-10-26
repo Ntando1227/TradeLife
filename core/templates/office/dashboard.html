@@ -1,0 +1,33 @@
+{% extends "core/base.html" %}
+{% block title %}Admin office | TradeLife{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">ADMIN OFFICE</div><h1>Business network</h1>
+<p>Review new businesses, customer records and follow-ups.</p></div></div>
+<section class="metric-grid">
+  <article class="metric-card"><span>BUSINESS ACCOUNTS</span><strong>{{ business_count }}</strong></article>
+  <article class="metric-card"><span>NEW IN 30 DAYS</span><strong>{{ new_business_count }}</strong></article>
+  <article class="metric-card"><span>CUSTOMER RECORDS</span><strong>{{ customer_count }}</strong></article>
+  <article class="metric-card"><span>OPEN UPDATES</span><strong>{{ open_update_count }}</strong></article>
+</section>
+<section class="panel">
+  <div class="panel-heading"><div><h2>New businesses</h2><p>Accounts created in the last 30 days.</p></div><a href="{% url 'office_businesses' %}">All businesses →</a></div>
+  <div class="table-wrap"><table><thead><tr><th>Business</th><th>Owner</th><th>Sector</th><th>Customers</th><th>Joined</th></tr></thead><tbody>
+  {% for business in new_businesses %}
+  <tr><td><strong>{{ business.name }}</strong></td><td>{{ business.owner.username }}<small class="table-sub">{{ business.owner.email }}</small></td><td>{{ business.sector }}</td><td>{{ business.customer_count }}</td><td>{{ business.created_at|date:"d M Y" }}</td></tr>
+  {% empty %}<tr><td colspan="5">No new business accounts in the last 30 days.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+<section class="panel">
+  <div class="panel-heading"><div><h2>Recently added customers</h2><p>Customer records across all business accounts.</p></div><a href="{% url 'office_customers' %}">All customers →</a></div>
+  <div class="table-wrap"><table><thead><tr><th>Customer</th><th>Business</th><th>Contact</th><th>Added</th></tr></thead><tbody>
+  {% for customer in recent_customers %}
+  <tr><td><strong>{{ customer.name }}</strong></td><td>{{ customer.business.name }}</td><td>{{ customer.contact_name|default:"—" }}</td><td>{{ customer.created_at|date:"d M Y" }}</td></tr>
+  {% empty %}<tr><td colspan="4">No customer records yet.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+<section class="panel">
+  <div class="panel-heading"><div><h2>Open follow-ups</h2><p>Items marked open or in progress.</p></div><a href="{% url 'office_updates' %}">Manage updates →</a></div>
+  {% for update in updates %}<p><strong>{{ update.business.name }}</strong> · {{ update.title }} · {{ update.get_status_display }} · {{ update.follow_up_date|date:"d M Y"|default:"No date set" }}</p>
+  {% empty %}<p>No open follow-ups.</p>{% endfor %}
+</section>
+{% endblock %}

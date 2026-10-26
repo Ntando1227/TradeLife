@@ -1,0 +1,77 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<style>
+.office-wrap { max-width:1280px; margin:0 auto; padding:28px 16px 48px; color:#17212b; }
+.office-head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:end; gap:16px; margin-bottom:24px; }
+.office-eyebrow { color:#718096; font-size:.78rem; text-transform:uppercase; letter-spacing:.12em; font-weight:700; }
+.office-title { font-size:clamp(1.7rem,4vw,2.3rem); font-weight:750; margin:4px 0; }
+.office-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:18px; }
+.office-card { background:#fff; border:1px solid #e7edf2; border-radius:16px; padding:18px; box-shadow:0 8px 24px rgba(20,38,54,.045); }
+.office-metric { color:#718096; font-size:.9rem; }
+.office-number { font-size:2.1rem; font-weight:750; margin-top:6px; }
+.office-section { background:#fff; border:1px solid #e7edf2; border-radius:16px; overflow:hidden; margin-bottom:18px; box-shadow:0 8px 24px rgba(20,38,54,.045); }
+.office-section h2 { font-size:1rem; padding:17px 20px; margin:0; border-bottom:1px solid #edf1f3; }
+.office-section .table { margin:0; }
+.office-section th { color:#718096; font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; }
+@media(max-width:700px) { .office-grid { grid-template-columns:1fr; } }
+</style>
+
+<div class="office-wrap">
+  <div class="office-head">
+    <div>
+      <div class="office-eyebrow">Administrator overview</div>
+      <h1 class="office-title">Business activity</h1>
+      <div class="text-muted">Recent registrations, customers and quotations across the platform.</div>
+    </div>
+    <a href="{% url 'action_centre' %}" class="btn btn-outline-primary">Action centre</a>
+  </div>
+
+  <div class="office-grid">
+    <div class="office-card"><div class="office-metric">Registered businesses</div><div class="office-number">{{ business_count }}</div></div>
+    <div class="office-card"><div class="office-metric">Customer records</div><div class="office-number">{{ customer_count }}</div></div>
+    <div class="office-card"><div class="office-metric">Quotations</div><div class="office-number">{{ quote_count }}</div></div>
+  </div>
+
+  <section class="office-section">
+    <h2>Recently registered businesses</h2>
+    <div class="table-responsive"><table class="table table-hover align-middle">
+      <thead><tr><th>Business</th><th>Owner</th><th>Registered</th></tr></thead>
+      <tbody>
+      {% for business in businesses %}
+      <tr><td class="fw-semibold">{{ business.name }}</td><td>{{ business.owner.username }}</td><td>{{ business.created_at|date:"d M Y" }}</td></tr>
+      {% empty %}<tr><td colspan="3" class="text-muted p-3">No businesses registered yet.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="office-section">
+    <h2>New customers across all businesses</h2>
+    <div class="table-responsive"><table class="table table-hover align-middle">
+      <thead><tr><th>Customer</th><th>Business</th><th>Added</th></tr></thead>
+      <tbody>
+      {% for customer in recent_customers %}
+      <tr><td class="fw-semibold">{{ customer.name }}</td><td>{{ customer.business.name }}</td><td>{{ customer.created_at|date:"d M Y" }}</td></tr>
+      {% empty %}<tr><td colspan="3" class="text-muted p-3">No customers recorded yet.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="office-section">
+    <h2>Recent quotations</h2>
+    <div class="table-responsive"><table class="table table-hover align-middle">
+      <thead><tr><th>Reference</th><th>Business</th><th>Customer</th><th>Status</th><th>Issue date</th><th class="text-end">Amount</th></tr></thead>
+      <tbody>
+      {% for quote in recent_quotes %}
+      <tr>
+        <td class="fw-semibold">QT-{{ quote.id|stringformat:"05d" }}</td>
+        <td>{{ quote.business.name }}</td><td>{{ quote.customer.name }}</td>
+        <td>{{ quote.get_status_display|default:quote.status }}</td>
+        <td>{{ quote.issue_date|date:"d M Y" }}</td><td class="text-end">R {{ quote.amount }}</td>
+      </tr>
+      {% empty %}<tr><td colspan="6" class="text-muted p-3">No quotations recorded yet.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+</div>
+{% endblock %}

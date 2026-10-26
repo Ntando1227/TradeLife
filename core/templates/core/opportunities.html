@@ -1,0 +1,130 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<style>
+.market-page { max-width:1180px; margin:0 auto; padding:28px 16px 48px; color:#17212b; }
+.market-head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:end; gap:16px; margin-bottom:22px; }
+.market-kicker { color:#718096; font-size:.78rem; text-transform:uppercase; letter-spacing:.12em; font-weight:700; }
+.market-title { font-size:clamp(1.8rem,4vw,2.4rem); font-weight:750; margin:4px 0; }
+.market-subtitle { color:#718096; margin:0; }
+.market-tools { background:#fff; border:1px solid #e7edf2; border-radius:16px; padding:16px; margin-bottom:18px; box-shadow:0 8px 24px rgba(20,38,54,.04); }
+.market-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.market-card { background:#fff; border:1px solid #e7edf2; border-radius:16px; padding:20px; box-shadow:0 8px 24px rgba(20,38,54,.045); display:flex; flex-direction:column; }
+.market-org { color:#176b4d; font-size:.84rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+.market-card h2 { font-size:1.15rem; font-weight:750; margin:7px 0; }
+.market-description { color:#52616d; white-space:pre-line; }
+.market-meta { display:flex; flex-wrap:wrap; gap:7px; margin:12px 0; }
+.market-fit { border-left:4px solid #36a77a; background:#eff8f3; padding:10px 12px; border-radius:7px; font-size:.88rem; margin:8px 0 14px; }
+.market-fit.review { border-color:#d8a33b; background:#fff8e9; }
+.market-requirements { background:#f7f9fa; border-radius:9px; padding:12px; margin-top:8px; white-space:pre-line; font-size:.9rem; }
+.market-empty { background:#fff; border:1px solid #e7edf2; border-radius:16px; padding:40px 20px; text-align:center; color:#718096; grid-column:1/-1; }
+.market-footer { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:20px; }
+@media(max-width:760px) { .market-grid { grid-template-columns:1fr; } }
+</style>
+
+<div class="market-page">
+  <div class="market-head">
+    <div>
+      <div class="market-kicker">Market access · South Africa and Africa</div>
+      <h1 class="market-title">Market Opportunities</h1>
+      <p class="market-subtitle">Search procurement, funding and business listings by country, sector and location.</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="/api/v1/">API guide</a>
+  </div>
+
+  {% if business %}
+  <div class="alert alert-success">Fit guidance is based on <strong>{{ business.name }}</strong> · {{ business.sector }} · {{ business.country }}{% if business.region %} · {{ business.region }}{% endif %}.</div>
+  {% endif %}
+
+  <form method="get" class="market-tools">
+    <div class="row g-2 align-items-end">
+      <div class="col-12 col-lg-3">
+        <label class="form-label" for="market-q">Search</label>
+        <input class="form-control" id="market-q" name="q" value="{{ selected_search }}" placeholder="Title, organisation or requirement">
+      </div>
+      <div class="col-12 col-md-6 col-lg-2">
+        <label class="form-label" for="market-country">Country</label>
+        <select class="form-select" id="market-country" name="country">
+          <option value="">All countries</option>
+          {% for item in countries %}<option value="{{ item }}" {% if selected_country == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-md-6 col-lg-2">
+        <label class="form-label" for="market-sector">Sector</label>
+        <select class="form-select" id="market-sector" name="sector">
+          <option value="">All sectors</option>
+          {% for item in sectors %}<option value="{{ item }}" {% if selected_sector == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-md-6 col-lg-2">
+        <label class="form-label" for="market-region">Province / region</label>
+        <select class="form-select" id="market-region" name="region">
+          <option value="">All locations</option>
+          {% for item in regions %}<option value="{{ item }}" {% if selected_region == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-md-6 col-lg-1">
+        <label class="form-label" for="market-closing">Closing</label>
+        <select class="form-select" id="market-closing" name="closing">
+          <option value="">Any</option>
+          <option value="soon" {% if closing_soon %}selected{% endif %}>30 days</option>
+        </select>
+      </div>
+      <div class="col-12 col-lg-2 d-flex gap-2">
+        <a class="btn btn-outline-secondary flex-fill" href="/opportunities/">Clear</a>
+        <button class="btn btn-primary flex-fill" type="submit">Search</button>
+      </div>
+      <div class="col-12 small text-muted">{{ total_opportunities }} matching opportunities</div>
+    </div>
+  </form>
+
+  <div class="market-grid">
+    {% for opportunity in opportunities %}
+    <article class="market-card">
+      <div class="market-org">{{ opportunity.organisation }}</div>
+      <h2>{{ opportunity.title }}</h2>
+      <div class="market-meta">
+        <span class="badge text-bg-light">{{ opportunity.country }}</span>
+        {% if opportunity.sector %}<span class="badge text-bg-light">{{ opportunity.sector }}</span>{% else %}<span class="badge text-bg-light">All sectors</span>{% endif %}
+        {% if opportunity.region %}<span class="badge text-bg-light">{{ opportunity.region }}</span>{% else %}<span class="badge text-bg-light">Countrywide / all regions</span>{% endif %}
+        {% if opportunity.closing_date %}<span class="badge text-bg-light">Closes {{ opportunity.closing_date|date:"d M Y" }}</span>{% else %}<span class="badge text-bg-light">No closing date listed</span>{% endif %}
+      </div>
+
+      {% if business %}<div class="market-fit {% if not opportunity.fit_match %}review{% endif %}">{{ opportunity.fit_reason }}</div>{% endif %}
+      <div class="market-description">{{ opportunity.description }}</div>
+
+      {% if opportunity.requirements %}
+      <details class="market-requirements">
+        <summary class="fw-semibold">View requirements</summary>
+        <div class="mt-2">{{ opportunity.requirements }}</div>
+      </details>
+      {% endif %}
+
+      <div class="mt-auto pt-3 d-flex flex-wrap gap-2">
+        {% if opportunity.source_url %}
+        <a class="btn btn-sm btn-outline-primary" href="{{ opportunity.source_url }}" target="_blank" rel="noopener noreferrer">Open source listing ↗</a>
+        <a class="btn btn-sm btn-success" href="{{ opportunity.whatsapp_url }}" target="_blank" rel="noopener noreferrer">Share on WhatsApp</a>
+        {% else %}
+        <span class="small text-muted">No source link has been added yet.</span>
+        {% endif %}
+      </div>
+    </article>
+    {% empty %}
+    <div class="market-empty">
+      <div class="fs-5 fw-semibold">No opportunities match these filters</div>
+      <div class="mt-1">Try another country, sector or search term.</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="market-footer">
+    <span class="small text-muted">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    <div class="d-flex gap-2">
+      {% if page_obj.has_previous %}<a class="btn btn-outline-secondary btn-sm" href="?{{ query_string }}{% if query_string %}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>{% endif %}
+      {% if page_obj.has_next %}<a class="btn btn-outline-primary btn-sm" href="?{{ query_string }}{% if query_string %}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

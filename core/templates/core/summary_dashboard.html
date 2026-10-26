@@ -1,0 +1,139 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<style>
+.dashboard-wrap { max-width: 1240px; margin: 0 auto; padding: 28px 16px 48px; color: #17212b; }
+.dashboard-heading { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:24px; }
+.dashboard-eyebrow { color:#718096; font-size:.78rem; text-transform:uppercase; letter-spacing:.12em; font-weight:700; }
+.dashboard-title { font-size:clamp(1.7rem,4vw,2.35rem); font-weight:750; margin:4px 0; }
+.dashboard-subtitle { color:#718096; margin:0; }
+.dashboard-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.dashboard-card { background:#fff; border:1px solid #e7edf2; border-radius:18px; padding:20px; box-shadow:0 8px 24px rgba(20,38,54,.045); }
+.metric-card { position:relative; overflow:hidden; min-height:142px; }
+.metric-card:after { content:""; position:absolute; right:-22px; bottom:-38px; width:120px; height:120px; border-radius:50%; background:#edf7f2; }
+.metric-label { color:#718096; font-size:.9rem; }
+.metric-number { font-size:2.35rem; line-height:1.15; font-weight:750; margin:12px 0; position:relative; z-index:1; }
+.metric-link { color:#176b4d; font-weight:650; text-decoration:none; position:relative; z-index:1; }
+.section-title { font-size:1.05rem; font-weight:700; margin:0; }
+.section-note { color:#718096; font-size:.85rem; }
+.chart { height:190px; display:flex; align-items:end; gap:12px; padding:18px 4px 0; }
+.chart-column { flex:1; height:100%; display:flex; flex-direction:column; justify-content:end; align-items:center; gap:8px; }
+.chart-count { color:#718096; font-size:.75rem; }
+.chart-track { height:138px; width:min(34px,70%); display:flex; align-items:end; background:#f0f4f5; border-radius:10px 10px 5px 5px; overflow:hidden; }
+.chart-bar { width:100%; background:linear-gradient(180deg,#36a77a,#176b4d); border-radius:10px 10px 4px 4px; min-height:5px; }
+.chart-label { font-size:.8rem; color:#718096; }
+.status-row { display:grid; grid-template-columns:100px 1fr 28px; align-items:center; gap:10px; margin:15px 0; font-size:.88rem; }
+.status-track { height:9px; background:#edf1f3; border-radius:99px; overflow:hidden; }
+.status-fill { height:100%; background:#3a9b74; border-radius:99px; }
+.data-list { list-style:none; padding:0; margin:12px 0 0; }
+.data-list li { display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-top:1px solid #edf1f3; }
+.data-primary { font-weight:650; }
+.data-secondary { color:#718096; font-size:.84rem; margin-top:3px; }
+.data-amount { font-weight:700; white-space:nowrap; }
+.empty-state { color:#718096; padding:18px 0; }
+@media (max-width:720px) {
+  .dashboard-grid { grid-template-columns:1fr; }
+  .dashboard-heading { align-items:flex-start; flex-direction:column; }
+}
+</style>
+
+<div class="dashboard-wrap">
+  <div class="dashboard-heading">
+    <div>
+      <div class="dashboard-eyebrow">Business overview</div>
+      <h1 class="dashboard-title">{{ business.name }}</h1>
+      <p class="dashboard-subtitle">A quick view of your customers and sales activity.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-primary" href="{% url 'action_centre' %}">Open action centre</a>
+      <a class="btn btn-primary" href="{% url 'quote_create' %}">Create quotation</a>
+    </div>
+  </div>
+
+  <div class="dashboard-grid mb-3">
+    <div class="dashboard-card metric-card">
+      <div class="metric-label">Customers</div>
+      <div class="metric-number">{{ customer_count }}</div>
+      <a class="metric-link" href="{% url 'customer_list' %}">View customer records →</a>
+    </div>
+    <div class="dashboard-card metric-card">
+      <div class="metric-label">Quotations</div>
+      <div class="metric-number">{{ quote_count }}</div>
+      <a class="metric-link" href="{% url 'quote_manage' %}">Manage quotations →</a>
+    </div>
+  </div>
+
+  <div class="dashboard-grid mb-3">
+    <section class="dashboard-card">
+      <div class="d-flex justify-content-between align-items-start">
+        <div><h2 class="section-title">Quotation activity</h2><div class="section-note">Quotes created by issue date</div></div>
+        <span class="badge text-bg-light">Last 6 months</span>
+      </div>
+      <div class="chart">
+        {% for month in monthly_activity %}
+        <div class="chart-column">
+          <span class="chart-count">{{ month.count }}</span>
+          <div class="chart-track"><div class="chart-bar" style="height:{{ month.height }}%"></div></div>
+          <span class="chart-label">{{ month.label }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="dashboard-card">
+      <h2 class="section-title">Quotation status</h2>
+      <div class="section-note">Current mix across your quotations</div>
+      {% for item in quote_statuses %}
+      <div class="status-row">
+        <span>{{ item.label }}</span>
+        <div class="status-track"><div class="status-fill" style="width:{{ item.percent }}%"></div></div>
+        <strong>{{ item.count }}</strong>
+      </div>
+      {% empty %}
+      <div class="empty-state">Your quotation status summary will appear here.</div>
+      {% endfor %}
+    </section>
+  </div>
+
+  <div class="dashboard-grid">
+    <section class="dashboard-card">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="section-title">Recent quotations</h2>
+        <a href="{% url 'quote_manage' %}">View all</a>
+      </div>
+      <ul class="data-list">
+        {% for quote in recent_quotes %}
+        <li>
+          <div>
+            <div class="data-primary">QT-{{ quote.id|stringformat:"05d" }} · {{ quote.customer.name }}</div>
+            <div class="data-secondary">{{ quote.issue_date|date:"d M Y" }} · {{ quote.get_status_display|default:quote.status }}</div>
+          </div>
+          <div class="data-amount">R {{ quote.amount }}</div>
+        </li>
+        {% empty %}
+        <li class="empty-state">No quotations yet.</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="dashboard-card">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="section-title">New customers</h2>
+        <a href="{% url 'customer_list' %}">View customers</a>
+      </div>
+      <ul class="data-list">
+        {% for customer in recent_customers %}
+        <li>
+          <div>
+            <div class="data-primary">{{ customer.name }}</div>
+            <div class="data-secondary">Added {{ customer.created_at|date:"d M Y" }}</div>
+          </div>
+        </li>
+        {% empty %}
+        <li class="empty-state">No customers yet.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+</div>
+{% endblock %}

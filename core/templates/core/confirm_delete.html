@@ -1,0 +1,14 @@
+{% extends "core/base.html" %}
+{% block title %}Confirm deletion | TradeLife{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">CONFIRM ACTION</div><h1>Delete this quotation?</h1></div></div>
+<section class="panel">
+  <h2>{{ object_name|title }}</h2>
+  <p>{{ object_description }}</p>
+  <p class="notice">This cannot be undone. A quotation converted to an invoice cannot be deleted.</p>
+  <form method="post">{% csrf_token %}
+    <a class="button outline" href="{% url cancel_url %}">Keep quotation</a>
+    <button class="button primary" type="submit">Delete quotation</button>
+  </form>
+</section>
+{% endblock %}

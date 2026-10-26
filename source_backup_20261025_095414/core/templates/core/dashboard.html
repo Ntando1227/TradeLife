@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+{% block title %}Overview | TradeLife{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">BUSINESS OVERVIEW</div><h1>Good day, {{ request.user.username }}</h1><p>Here is what is happening in {{ business.name }}.</p></div><a class="button primary" href="{% url 'invoice_create' %}">＋ New invoice</a></div>
+{% if alerts %}<section class="alert-stack">{% for alert in alerts %}<div class="insight"><span class="insight-icon">!</span><span>{{ alert }}</span></div>{% endfor %}</section>{% endif %}
+<section class="metric-grid">
+  <article class="metric-card"><span>INVOICES DUE IN 30 DAYS</span><strong>R {{ forecast.expected_in|floatformat:2 }}</strong><small>{{ forecast.invoice_count }} invoice{{ forecast.invoice_count|pluralize }} in the period</small></article>
+  <article class="metric-card"><span>UNPAID EXPENSES DUE</span><strong>R {{ forecast.expected_out|floatformat:2 }}</strong><small>Recorded due dates in the next 30 days</small></article>
+  <article class="metric-card"><span>ESTIMATED NET POSITION</span><strong class="{% if forecast.net < 0 %}negative{% else %}positive{% endif %}">R {{ forecast.net|floatformat:2 }}</strong><small>Expected invoices less recorded due expenses</small></article>
+  <article class="metric-card"><span>BUSINESS READINESS</span><strong>{{ readiness.score }}%</strong><a class="small-link" href="{% url 'readiness' %}">View checklist →</a></article>
+</section>
+<div class="dashboard-columns">
+  <section class="panel"><div class="panel-heading"><div><h2>Recent invoices</h2><p>Track customer payments and outstanding amounts.</p></div><a href="{% url 'invoice_list' %}">View all</a></div>
+    {% if invoices %}<div class="table-wrap"><table><thead><tr><th>Invoice</th><th>Customer</th><th>Due</th><th>Balance</th><th>Status</th></tr></thead><tbody>{% for invoice in invoices %}<tr><td><strong>{{ invoice.reference }}</strong></td><td>{{ invoice.customer.name }}</td><td>{{ invoice.due_date|date:'d M Y' }}</td><td>R {{ invoice.balance|floatformat:2 }}</td><td><span class="status {{ invoice.status }}">{{ invoice.get_status_display|default:invoice.status|title }}</span></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty-state">No invoices yet. Create one when you are ready to bill a customer.</div>{% endif %}
+  </section>
+  <section class="panel"><div class="panel-heading"><div><h2>Quick actions</h2><p>Keep your business records up to date.</p></div></div><div class="action-list"><a href="{% url 'customer_create' %}"><span class="action-icon">＋</span><span><b>Add a customer</b><small>Save a customer’s contact details</small></span><span>→</span></a><a href="{% url 'quote_create' %}"><span class="action-icon">↗</span><span><b>Create a quotation</b><small>Record the work and price offered</small></span><span>→</span></a><a href="{% url 'expense_create' %}"><span class="action-icon">−</span><span><b>Record an expense</b><small>Track a business cost or bill</small></span><span>→</span></a></div></section>
+</div>
+<section class="bottom-callout"><div><span class="eyebrow">A NEXT STEP FOR YOUR BUSINESS</span><h2>Build a stronger business profile</h2><p>See which records you already have and what you can add before applying for an opportunity.</p></div><a class="button outline" href="{% url 'readiness' %}">Open readiness checklist</a></section>
+{% endblock %}

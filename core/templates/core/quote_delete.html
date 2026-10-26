@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 640px">
+  <div class="card">
+    <div class="card-body p-4">
+      <p class="text-muted mb-1">QT-{{ quote.id|stringformat:"05d" }}</p>
+      <h1 class="h3">Delete this quotation?</h1>
+      <p>This will delete the quotation for <strong>{{ quote.customer.name }}</strong>, for <strong>{{ quote.amount }}</strong>.</p>
+      <form method="post">
+        {% csrf_token %}
+        <button class="btn btn-danger" type="submit">Yes, delete quotation</button>
+        <a class="btn btn-outline-secondary" href="{% url 'quote_manage' %}">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "core/base.html" %}
+{% block title %}Quotations | TradeLife{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><div class="eyebrow">SALES RECORDS</div><h1>Quotations</h1>
+  <p>Create, review, edit and manage customer quotations.</p></div>
+  <a class="button primary" href="{% url 'quote_create' %}">＋ New quotation</a>
+</div>
+<section class="panel">
+{% if quotes %}
+<div class="table-wrap">
+<table>
+<thead><tr><th>Reference</th><th>Customer</th><th>Description</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+<tbody>
+{% for quote in quotes %}
+<tr>
+  <td><a href="{% url 'quote_detail' quote.id %}"><strong>{{ quote.reference }}</strong></a></td>
+  <td>{{ quote.customer.name }}</td>
+  <td>{{ quote.description }}</td>
+  <td>R {{ quote.amount|floatformat:2 }}</td>
+  <td><span class="status {{ quote.status }}">{{ quote.get_status_display }}</span></td>
+  <td>
+    <a class="text-button" href="{% url 'quote_detail' quote.id %}">View</a>
+    {% if quote.status != "invoiced" %}
+      <a class="text-button" href="{% url 'quote_update' quote.id %}">Edit</a>
+      <a class="text-button" href="{% url 'quote_delete' quote.id %}">Delete</a>
+    {% endif %}
+    {% if quote.status == "accepted" %}
+      <form method="post" action="{% url 'quote_to_invoice' quote.id %}">
+        {% csrf_token %}
+        <button class="text-button" type="submit">Create invoice</button>
+      </form>
+    {% endif %}
+  </td>
+</tr>
+{% endfor %}
+</tbody></table></div>
+{% else %}<div class="empty-state">No quotations recorded yet.</div>{% endif %}
+</section>
+{% endblock %}

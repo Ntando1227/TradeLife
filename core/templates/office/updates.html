@@ -1,0 +1,15 @@
+{% extends "core/base.html" %}
+{% block title %}Follow-ups and updates | TradeLife{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">ADMIN OFFICE</div><h1>Follow-ups and updates</h1><p>Record onboarding, support, issues and general follow-ups.</p></div></div>
+<section class="panel"><h2>Add a follow-up or update</h2>
+<form method="post">{% csrf_token %}
+{% for field in form %}<div class="field-row"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>{% endfor %}
+<button class="button primary" type="submit">Save update</button></form></section>
+<section class="panel"><h2>Update register</h2><div class="table-wrap"><table>
+<thead><tr><th>Business</th><th>Update</th><th>Priority</th><th>Follow-up</th><th>Visible to business</th><th>Status</th><th>Change status</th></tr></thead>
+<tbody>{% for update in updates %}
+<tr><td>{{ update.business.name }}</td><td><strong>{{ update.title }}</strong><small class="table-sub">{{ update.body|truncatechars:90 }}</small></td><td>{{ update.get_priority_display }}</td><td>{{ update.follow_up_date|date:"d M Y"|default:"—" }}</td><td>{% if update.visible_to_business %}Yes{% else %}No{% endif %}</td><td>{{ update.get_status_display }}</td>
+<td><form method="post" action="{% url 'office_update_status' update.id %}">{% csrf_token %}<select name="status" class="form-control"><option value="open">Open</option><option value="in_progress">In progress</option><option value="resolved">Resolved</option></select><button class="text-button" type="submit">Save</button></form></td></tr>
+{% empty %}<tr><td colspan="7">No updates in this view.</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "core/base.html" %}
+{% block title %}All businesses | TradeLife{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">ADMIN OFFICE</div><h1>All businesses</h1><p>Search business accounts and owners.</p></div></div>
+<form method="get"><input class="form-control" type="search" name="q" value="{{ query }}" placeholder="Business, owner, email or location"><button class="button primary" type="submit">Search</button></form>
+<section class="panel"><div class="table-wrap"><table>
+<thead><tr><th>Business</th><th>Owner</th><th>Sector</th><th>Location</th><th>Registration</th><th>Customers</th><th>Joined</th></tr></thead>
+<tbody>{% for business in businesses %}
+<tr><td><strong>{{ business.name }}</strong></td><td>{{ business.owner.username }}<small class="table-sub">{{ business.owner.email }}</small></td><td>{{ business.sector }}</td><td>{{ business.town }} {{ business.region }}</td><td>{{ business.get_registration_status_display }}</td><td>{{ business.customer_count }}</td><td>{{ business.created_at|date:"d M Y" }}</td></tr>
+{% empty %}<tr><td colspan="7">No businesses match this search.</td></tr>{% endfor %}</tbody>
+</table></div></section>
+{% endblock %}

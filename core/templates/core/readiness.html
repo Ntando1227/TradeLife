@@ -1,0 +1,6 @@
+{% extends 'core/base.html' %}{% block title %}Business readiness | TradeLife{% endblock %}{% block content %}
+<div class="page-heading"><div><div class="eyebrow">MARKET ACCESS</div><h1>Business readiness</h1><p>A practical checklist of records that may help you prepare for formal opportunities.</p></div><a class="button outline" href="{% url 'business_profile' %}">Update profile</a></div>
+<section class="readiness-hero"><div><span class="eyebrow">PROFILE CHECKLIST</span><h2>{{ readiness.score }}% complete</h2><p>{{ readiness.complete }} of {{ readiness.total }} checklist items recorded</p></div><div class="progress-track"><div class="progress-fill" style="width: {{ readiness.score }}%"></div></div></section>
+<section class="panel checklist">{% for label, done in readiness.checks %}<div class="check-row"><span class="check-icon {% if done %}done{% endif %}">{% if done %}✓{% else %}·{% endif %}</span><span>{{ label }}</span><span class="check-state">{% if done %}Recorded{% else %}To do{% endif %}</span></div>{% endfor %}</section>
+<div class="notice">This checklist is guidance only. It is not a credit score, funding decision or guarantee that an opportunity will accept an application. Requirements vary by organisation.</div>
+{% endblock %}

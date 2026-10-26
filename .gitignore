@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+*.sqlite3
+.venv/
+venv/
+.env
+staticfiles/
+media/
+.pytest_cache/
+# Python
+.Python
+# Virtual environments
+env/
+ENV/
+# Django local data
+*.sqlite3-journal
+db.sqlite3
+# Secrets
+.env.*
+!.env.example
+# Local backups
+backup-*/
+backup_*/
+*.bak

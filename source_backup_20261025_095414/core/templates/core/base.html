@@ -1,0 +1,36 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}TradeLife{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'core/style.css' %}">
+</head>
+<body>
+{% if request.user.is_authenticated %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">T</span><span>TradeLife<small>Business workspace</small></span></a>
+    <div class="nav-label">WORKSPACE</div>
+    <nav class="nav-links">
+      <a href="{% url 'dashboard' %}">Overview</a><a href="{% url 'customer_list' %}">Customers</a>
+      <a href="{% url 'quote_list' %}">Quotations</a><a href="{% url 'invoice_list' %}">Invoices & payments</a>
+      <a href="{% url 'expense_list' %}">Expenses</a><a href="{% url 'forecast' %}">Cash outlook</a>
+      <a href="{% url 'opportunity_list' %}">Market opportunities</a><a href="{% url 'readiness' %}">Business readiness</a>
+    </nav>
+    <div class="sidebar-bottom"><a href="{% url 'business_profile' %}">Business profile</a>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="nav-button" type="submit">Sign out</button></form>
+    </div>
+  </aside>
+  <main class="main-area">
+    <header class="topbar"><div><span class="eyebrow">YOUR BUSINESS</span><strong>{{ request.user.business.name|default:request.user.username }}</strong></div><span class="user-chip">{{ request.user.username|first|upper }}</span></header>
+    <div class="content">
+      {% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+      {% block content %}{% endblock %}
+      <footer>TradeLife · A practical business record keeping prototype</footer>
+    </div>
+  </main>
+</div>
+{% else %}{% block public_content %}{% endblock %}{% endif %}
+</body>
+</html>
