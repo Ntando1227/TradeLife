@@ -130,6 +130,7 @@ class Expense(models.Model):
 class Opportunity(models.Model):
     title = models.CharField(max_length=180)
     organisation = models.CharField(max_length=140)
+    country = models.CharField(max_length=100, default='South Africa', db_index=True)
     description = models.TextField()
     sector = models.CharField(max_length=40, blank=True, help_text="Leave blank for opportunities open to every sector")
     region = models.CharField(max_length=100, blank=True, help_text="Leave blank for opportunities open to every region")
