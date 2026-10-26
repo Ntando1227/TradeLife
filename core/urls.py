@@ -6,6 +6,7 @@ from . import action_views
 from . import extra_views
 from django.contrib.auth import views as auth_views
 from django.urls import path
+from django.views.generic import RedirectView
 
 from . import office_views, quote_views, views
 
@@ -13,9 +14,9 @@ urlpatterns = [
     path("team/", team_views.team_manage, name="team_manage"),
     path("api/v1/", market_views.api_docs, name="api_docs"),
     path("api/v1/opportunities/", market_views.api_opportunities, name="api_opportunities"),
-    path("action-centre/", action_views.action_centre, name="action_centre"),
+    path("action-centre/", RedirectView.as_view(pattern_name="dashboard", permanent=False), name="action_centre"),
     path("dashboard/", dashboard_views.unified_dashboard, name="dashboard"),
-    path("quotes/manage/", extra_views.quote_manage, name="quote_manage"),
+    path("quotes/manage/", RedirectView.as_view(pattern_name="quote_list", permanent=False), name="quote_manage"),
     path("quotes/<int:pk>/edit/", extra_views.quote_edit, name="quote_edit"),
     path("quotes/<int:pk>/delete/", extra_views.quote_delete, name="quote_delete"),
     path("", views.home, name="home"),

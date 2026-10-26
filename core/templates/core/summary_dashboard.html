@@ -45,7 +45,7 @@
       <p class="dashboard-subtitle">A quick view of your customers and sales activity.</p>
     </div>
     <div class="d-flex flex-wrap gap-2">
-      <a class="btn btn-outline-primary" href="{% url 'action_centre' %}">Open action centre</a>
+      
       <a class="btn btn-primary" href="{% url 'quote_create' %}">Create quotation</a>
     </div>
   </div>
@@ -59,7 +59,7 @@
     <div class="dashboard-card metric-card">
       <div class="metric-label">Quotations</div>
       <div class="metric-number">{{ quote_count }}</div>
-      <a class="metric-link" href="{% url 'quote_manage' %}">Manage quotations →</a>
+      <a class="metric-link" href="{% url 'quote_list' %}">Manage quotations →</a>
     </div>
   </div>
 
@@ -99,7 +99,7 @@
     <section class="dashboard-card">
       <div class="d-flex justify-content-between align-items-center">
         <h2 class="section-title">Recent quotations</h2>
-        <a href="{% url 'quote_manage' %}">View all</a>
+        <a href="{% url 'quote_list' %}">View all</a>
       </div>
       <ul class="data-list">
         {% for quote in recent_quotes %}
