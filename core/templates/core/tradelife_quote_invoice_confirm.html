@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+{% block content %}
+<div class="container py-4">
+    <div class="card">
+        <div class="card-body p-4">
+            <p class="small text-uppercase text-muted fw-semibold mb-1">Quotation conversion</p>
+            <h1 class="h3">Create an invoice from {{ quote.reference }}?</h1>
+            <p>This will create an invoice for {{ quote.customer.name }} for R {{ quote.amount|floatformat:2 }}. The due date will be 30 days from today.</p>
+            <form method="post">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit">Create invoice</button>
+                <a class="btn btn-outline-secondary" href="/quotes/{{ quote.pk }}/">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
